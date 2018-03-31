@@ -19,24 +19,23 @@ Trie * getTrieNode(char letter)
 	return trie;
 }
 
-void insertWord(Trie ** trie, char * word, int index)
+void insertWord(Trie ** trie, char * word)
 {
-	int length = strlen(word);
-	if (index < length)
+	if (*word != '\0')
 	{
-		if ((*trie)->nextLetter[(int)word[index] - 97] == NULL)
+		int index = (int)(*word) - 97;
+		if ((*trie)->nextLetter[index] == NULL)
 		{
-			Trie * node = getTrieNode(word[index]);
-			if (index == length - 1)
+			Trie * node = getTrieNode(*word);
+			if (*(word + 1) == '\0')
 				node->isEnd = true;
-			(*trie)->nextLetter[(int)word[index] - 97] = node;
+			(*trie)->nextLetter[index] = node;
 		}
 		else
 		{
-			((*trie)->nextLetter[(int)word[index] - 97])->no_of_words++;
+			((*trie)->nextLetter[index])->no_of_words++;
 		}
-		index++;
-		insertWord(&((*trie)->nextLetter[(int)word[index - 1] - 97]), word, index);
+		insertWord(&((*trie)->nextLetter[index]), word + 1);
 	}
 }
 
@@ -79,19 +78,14 @@ int main()
 	//char word[10] = "apple";
 	char s[100] = "appy";
 	Trie * trie = getTrieNode(NULL);
-	insertWord(&trie, "apple", 0);
-	insertWord(&trie, "appy", 0);
-	insertWord(&trie, "mango", 0);
-	insertWord(&trie, "batman", 0);
-	insertWord(&trie, "appy", 0);
-	insertWord(&trie, "happy", 0);
-	insertWord(&trie, "zebra", 0);
-	insertWord(&trie, "akhil", 0);
-	printf("Before Deleting\n");
-	printTrieWords(&trie, s, 0);
-	printf("After Deleting\n");
-	deleteWords(&trie, "apple");
-	deleteWords(&trie, "mango");
+	insertWord(&trie, "apple");
+	insertWord(&trie, "appy");
+	insertWord(&trie, "mango");
+	insertWord(&trie, "batman");
+	insertWord(&trie, "happy");
+	insertWord(&trie, "zebra");
+	insertWord(&trie, "akhil");
+	deleteWords(&trie, "akhil");
 	printTrieWords(&trie, s, 0);
 	_getch();
 	return 0;
