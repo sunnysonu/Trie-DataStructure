@@ -11,6 +11,53 @@ typedef struct Trie
 	bool isEnd = false;
 } Trie;
 
+typedef struct List
+{
+	char word[100];
+	struct List * next;
+}List;
+
+List * createNode(char * word)
+{
+	List * node = (List *)calloc(1, sizeof(List));
+	strcpy_s(node->word, word);
+	return node;
+}
+
+void addWordToList(List ** list, char * word)
+{
+	List *temp;
+	if (*list == NULL)
+	{
+		*list = createNode(word);
+	}
+	else
+	{
+		for (temp = *list; temp->next != NULL; temp = temp->next);
+		temp->next = createNode(word);
+	}
+}
+
+void printWords(List * list)
+{
+	for (List * temp = list; temp != NULL; temp = temp->next)
+	{
+		printf("%s\n", temp->word);
+	}
+}
+
+void addStartingWord(List ** list, char * word)
+{
+	List * temp;
+	for (temp = *list; temp != NULL; temp = temp->next)
+	{
+		char temp_word[100];
+		strcpy(temp_word, word);
+		strcat(temp_word, temp->word);
+		strcpy_s(temp->word, temp_word);
+	}
+}
+
 Trie * getTrieNode(char letter)
 {
 	Trie * trie = (Trie *)calloc(1, sizeof(Trie));
@@ -39,7 +86,7 @@ void insertWord(Trie ** trie, char * word)
 	}
 }
 
-void printTrieWords(Trie ** trie, char * word, int index)
+void getTrieWords(Trie ** trie, char * word, int index, List ** list)
 {
 	for (int i = 0; i < 26; i++)
 	{
@@ -49,19 +96,19 @@ void printTrieWords(Trie ** trie, char * word, int index)
 			if (((*trie)->nextLetter[i])->isEnd)
 			{
 				word[index + 1] = '\0';
-				printf("%s\n", word);
+				addWordToList(list, word);
 			}
-			printTrieWords(&((*trie)->nextLetter[i]), word, index + 1);
+			getTrieWords(&((*trie)->nextLetter[i]), word, index + 1, list);
 		}
 	}
 }
 
-void deleteWords(Trie **trie, char * word)
+void deleteWord(Trie **trie, char * word)
 {
 	if (*(word) != '\0')
 	{
 		int index = (int)(*word) - 97;
-		deleteWords(&((*trie)->nextLetter[index]), word + 1);
+		deleteWord(&((*trie)->nextLetter[index]), word + 1);
 		index = (int)(*(word)) - 97;
 		((*trie)->nextLetter[index]->no_of_words)--;
 		if ((*trie)->nextLetter[index]->no_of_words == 0)
@@ -100,7 +147,7 @@ bool isWordPresent(Trie ** trie, char * word)
 	}
 }
 
-void insert(Trie ** trie, char * word)
+void Insert(Trie ** trie, char * word)
 {
 	if (!isWordPresent(trie, word))
 	{
@@ -108,15 +155,48 @@ void insert(Trie ** trie, char * word)
 	}
 }
 
+void Delete(Trie ** trie, char * word)
+{
+	if (isWordPresent(trie, word))
+	{
+		deleteWord(trie, word);
+	}
+}
+
+void wordStartsWithHelper(Trie ** trie, char * word, List ** list)
+{
+	if (*word != '\0')
+	{
+		wordStartsWithHelper(&((*trie)->nextLetter[(int)(*word) - 97]), word + 1, list);
+	}
+	else
+	{
+		char s[10];
+		getTrieWords(trie, s, 0, list);
+	}
+}
+
+List * wordStartsWith(Trie ** trie, char * word)
+{
+	List * list = NULL;
+	wordStartsWithHelper(trie, word, &list);
+	addStartingWord(&list, word);
+	return list;
+}
+
 int main()
 {
 	char s[100];
 	Trie * trie = getTrieNode(NULL);
-	insert(&trie, "akhil");
-	printTrieWords(&trie, s, 0);
-	insert(&trie, "akhil");
-	deleteWords(&trie, "akhil");
-	printTrieWords(&trie, s, 0);
+	Insert(&trie, "akhil");
+	Insert(&trie, "akhil");
+	Insert(&trie, "akil");
+	Insert(&trie, "akhilesh");
+	Insert(&trie, "akhila");
+	Insert(&trie, "sonu");
+	List * list = NULL;
+	List * words = wordStartsWith(&trie, "ak");
+	printWords(words);
 	_getch();
 	return 0;
 }
