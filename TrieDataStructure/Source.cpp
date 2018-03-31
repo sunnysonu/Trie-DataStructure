@@ -73,18 +73,48 @@ void deleteWords(Trie **trie, char * word)
 	}
 }
 
+bool isWordPresent(Trie ** trie, char * word)
+{
+	if (*word != '\0')
+	{
+		int index = (int)(*word) - 97;
+		if ((*trie)->nextLetter[index] != NULL)
+		{
+			return isWordPresent(&((*trie)->nextLetter[index]), word + 1);
+		}
+		else
+		{
+			return false;
+		}
+	}
+	else
+	{
+		if ((*trie)->isEnd)
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+}
+
+void insert(Trie ** trie, char * word)
+{
+	if (!isWordPresent(trie, word))
+	{
+		insertWord(trie, word);
+	}
+}
+
 int main()
 {
-	//char word[10] = "apple";
-	char s[100] = "appy";
+	char s[100];
 	Trie * trie = getTrieNode(NULL);
-	insertWord(&trie, "apple");
-	insertWord(&trie, "appy");
-	insertWord(&trie, "mango");
-	insertWord(&trie, "batman");
-	insertWord(&trie, "happy");
-	insertWord(&trie, "zebra");
-	insertWord(&trie, "akhil");
+	insert(&trie, "akhil");
+	printTrieWords(&trie, s, 0);
+	insert(&trie, "akhil");
 	deleteWords(&trie, "akhil");
 	printTrieWords(&trie, s, 0);
 	_getch();
