@@ -147,6 +147,26 @@ bool isWordPresent(Trie ** trie, char * word)
 	}
 }
 
+bool isSubWordPresent(Trie ** trie, char * word)
+{
+	if (*word != '\0')
+	{
+		int index = (int)(*word) - 97;
+		if ((*trie)->nextLetter[index] != NULL)
+		{
+			return isSubWordPresent(&((*trie)->nextLetter[index]), word + 1);
+		}
+		else
+		{
+			return false;
+		}
+	}
+	else
+	{
+		return true;
+	}
+}
+
 void Insert(Trie ** trie, char * word)
 {
 	if (!isWordPresent(trie, word))
@@ -179,8 +199,18 @@ void wordStartsWithHelper(Trie ** trie, char * word, List ** list)
 List * wordStartsWith(Trie ** trie, char * word)
 {
 	List * list = NULL;
-	wordStartsWithHelper(trie, word, &list);
-	addStartingWord(&list, word);
+	if (isSubWordPresent(trie, word))
+	{
+		wordStartsWithHelper(trie, word, &list);
+		addStartingWord(&list, word);
+	}
+	return list;
+}
+
+List * allWordsInTrie(Trie ** trie)
+{
+	List * list = NULL;
+	wordStartsWithHelper(trie, "", &list);
 	return list;
 }
 
@@ -194,8 +224,10 @@ int main()
 	Insert(&trie, "akhilesh");
 	Insert(&trie, "akhila");
 	Insert(&trie, "sonu");
+	Insert(&trie, "ironman");
+	Insert(&trie, "thanos");
 	List * list = NULL;
-	List * words = wordStartsWith(&trie, "ak");
+	List * words = wordStartsWith(&trie, "");
 	printWords(words);
 	_getch();
 	return 0;
